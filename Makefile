@@ -104,13 +104,9 @@ endif
 _mvn_package: _m2_vol
 	$(info *** Building ONOS app...)
 	@mkdir -p target
-	docker run --rm -v $(DIR):/mvn-src -w /mvn-src --user $(UID) \
-		-e MAVEN_OPTS=-Dmaven.repo.local=/.m2 \
-		-e MAVEN_CONFIG=/.m2 \
-		-v $(MVN_CACHE):/.m2 \
-		$(MVN_SETTINGS_MOUNT) $(MAVEN_DOCKER_IMAGE) mvn $(MVN_FLAGS) clean package
+	mvn clean package -DskipTests
 
-pipeconf: _mvn_package
+app-build: _mvn_package
 	$(info *** ONOS pipeconf .oar package created succesfully)
 	@ls -1 $(DIR)/target/*.oar
 
@@ -134,14 +130,14 @@ pipeconf-ci: _m2_vol
 _pipeconf-oar-exists:
 	@test -f $(PIPECONF_OAR_FILE) || (echo "pipeconf .oar not found" && exit 1)
 
-pipeconf-install: _pipeconf-oar-exists
+app-install: _pipeconf-oar-exists
 	$(info *** Installing and activating pipeconf app in ONOS at $(ONOS_HOST)...)
 	$(ONOS_CURL) -X POST -H Content-Type:application/octet-stream \
 		$(ONOS_URL)/v1/applications?activate=true \
 		--data-binary @$(PIPECONF_OAR_FILE)
 	@echo
 
-pipeconf-uninstall:
+app-uninstall:
 	$(info *** Uninstalling pipeconf app from ONOS at $(ONOS_HOST)...)
 	-$(ONOS_CURL) -X DELETE $(ONOS_URL)/v1/applications/$(PIPECONF_APP_NAME)
 	@echo
