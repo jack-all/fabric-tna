@@ -1,0 +1,15 @@
+version: "3"
+
+services:
+  onos:
+    image: onosproject/onos:2.5.8
+    hostname: onos
+    container_name: onos
+    ports:
+      - "8181:8181" # HTTP
+      - "8101:8101" # SSH (CLI)
+      - "6653:6653" # openflow
+    volumes:
+      - ./tmp/onos:/root/onos/apache-karaf-4.2.8/data/tmp
+    environment:
+      - ONOS_APPS=gui2,drivers.barefoot

@@ -101,7 +101,7 @@ ifneq ($(MVN_SETTINGS),)
 	$(eval MVN_SETTINGS_MOUNT := -v $(MVN_SETTINGS):/.m2/settings.xml)
 endif
 
-_mvn_package: _m2_vol
+_mvn_package:
 	$(info *** Building ONOS app...)
 	@mkdir -p target
 	mvn clean package -DskipTests
@@ -179,3 +179,20 @@ clean:
 
 deep-clean: clean
 	-docker volume rm $(MVN_CACHE_DOCKER_VOLUME) > /dev/null 2>&1
+
+
+start:
+	$(info *** Starting ONOS ... )
+	@mkdir -p tmp/onos
+	@docker-compose up -d
+ 
+stop:
+	$(info *** Stopping ONOS...)
+	@docker-compose down
+ 
+restart: stop start
+ 
+onos-log:
+	docker-compose logs -f onos
+
+
